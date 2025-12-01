@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dhen Coffee Gacha</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #fff;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            text-align: center;
+            border: 2px solid #d4af37;
+            padding: 20px;
+            border-radius: 15px;
+            background: #2b2b2b;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h1 { color: #d4af37; margin-bottom: 5px; cursor: pointer; }
+        p { font-size: 14px; color: #ccc; }
+        
+        input {
+            width: 80%;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 5px;
+            border: 1px solid #d4af37;
+            background: #000;
+            color: #fff;
+            text-align: center;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+        }
+
+        .gacha-box {
+            font-size: 22px;
+            font-weight: bold;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            border: 2px dashed #d4af37;
+            margin: 20px 0;
+            color: #fff;
+            padding: 10px;
+        }
+
+        button {
+            background: #d4af37;
+            color: #000;
+            border: none;
+            padding: 15px 0;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 50px;
+            width: 90%;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+        button:hover { background: #b89628; }
+        button:disabled { background: #555; cursor: not-allowed; }
+
+        .hidden-section { display: none; }
+        .error-msg { color: #ff4d4d; font-size: 12px; margin-top: 5px; font-weight: bold; }
+        .success-msg { color: #0f0; font-size: 12px; margin-top: 5px; }
+
+        /* Footer Credit */
+        .footer { margin-top: 30px; font-size: 10px; color: #555; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 onclick="triggerAdmin()">DHEN COFFEE</h1>
+        <p>Masukkan Kode Unik dari Struk</p>
+
+        <div id="loginForm">
+            <input type="text" id="inputName" placeholder="Nama Kamu">
+            <input type="text" id="inputCode" placeholder="5 Digit Kode (Contoh: A001)">
+            <p id="statusMsg" class="error-msg"></p>
+            <button id="checkBtn" onclick="checkCode()">CEK KODE</button>
+        </div>
+
+        <div id="gameArea" class="hidden-section">
+            <div class="gacha-box" id="resultDisplay">KLIK TOMBOL DI BAWAH</div>
+            <button id="spinBtn" onclick="spinGacha()">PUTAR KEBERUNTUNGAN</button>
+            <p style="font-size: 10px; margin-top: 10px; color: #aaa;">*Screenshot hasil ini & tunjukkan ke Barista</p>
+        </div>
+    </div>
+
+    <div class="footer">Powered by Husein Kurnia | Elins Tech</div>
+
+    <script>
+        // --- PENTING: GANTI URL DI BAWAH INI DENGAN URL APPS SCRIPT KAMU ---
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyjY6R1lh6ZN_dQ2tf8VfQJPn4gWoiPGMLgiQK85v753sLquxhNlyOO4bpFqeAV2-NV/exec'; 
+
+        // --- KONFIGURASI HADIAH (OPSI A: Happy Customer) ---
+        const items = [
+            // BARANG MAHAL (Total 4%)
+            { name: "JACKPOT: Signature Coffee Gratis!", chance: 1 }, 
+            { name: "Kopi Susu Gula Aren Gratis", chance: 3 },
+
+            // BARANG SEDANG (Total 15%)
+            { name: "Free Snack Cireng", chance: 5 },
+            { name: "Free Extra Shot Espresso", chance: 10 },
+
+            // BARANG MURAH (Total 25%)
+            { name: "Free Up-Size Cup", chance: 10 },
+            { name: "Gratis Air Mineral Botol", chance: 15 },
+
+            // GIMMICK / ZONK HALUS (Total 56%)
+            { name: "Selamat! Kamu dapat Double Stempel Loyalty", chance: 15 },
+            { name: "Voucher Request Lagu VIP", chance: 15 },
+            { name: "Kata Mutiara: Tetaplah Bernafas", chance: 15 },
+            { name: "Kurang Beruntung. Coba Lagi Besok!", chance: 11 } 
+        ];
+
+        let forcedResult = null;
+
+        async function checkCode() {
+            const name = document.getElementById('inputName').value;
+            const code = document.getElementById('inputCode').value;
+            const btn = document.getElementById('checkBtn');
+            const msg = document.getElementById('statusMsg');
+
+            // Validasi Input Kosong
+            if(!name || !code) {
+                msg.innerText = "Waduh, isi Nama dan Kode dulu ya!";
+                return;
+            }
+
+            // Kalau Script URL belum diisi (masih default)
+            if(SCRIPT_URL.includes('PASTE_URL')) {
+                alert("Bro Husein, jangan lupa pasang URL Google Script dulu di kodingan index.html!");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Sedang Memeriksa...";
+            msg.innerText = "";
+            msg.className = "success-msg"; // Ubah warna jadi hijau sementara (loading)
+
+            try {
+                // Kirim data ke Google Sheets
+                const response = await fetch(`${SCRIPT_URL}?kode=${code}&nama=${name}`);
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    // Kode Benar & Belum Dipakai
+                    document.getElementById('loginForm').classList.add('hidden-section');
+                    document.getElementById('gameArea').classList.remove('hidden-section');
+                } else {
+                    // Kode Salah / Sudah Dipakai
+                    msg.className = "error-msg";
+                    msg.innerText = data.message;
+                    btn.disabled = false;
+                    btn.innerText = "CEK KODE";
+                }
+            } catch (error) {
+                console.error(error);
+                msg.className = "error-msg";
+                msg.innerText = "Gagal koneksi server. Cek internetmu.";
+                btn.disabled = false;
+                btn.innerText = "CEK KODE";
+            }
+        }
+
+        function spinGacha() {
+            const display = document.getElementById('resultDisplay');
+            const btn = document.getElementById('spinBtn');
+            
+            btn.disabled = true;
+            btn.innerText = "ROLLING...";
+
+            // Efek Animasi Acak
+            let counter = 0;
+            const animation = setInterval(() => {
+                const randomTemp = items[Math.floor(Math.random() * items.length)];
+                display.innerText = randomTemp.name;
+                display.style.color = "#fff";
+                counter++;
+                if (counter > 25) { // Lama putaran
+                    clearInterval(animation);
+                    finalizeResult();
+                }
+            }, 80); // Kecepatan ganti teks
+        }
+
+        function finalizeResult() {
+            const display = document.getElementById('resultDisplay');
+            let finalItem;
+
+            // Cek Manipulasi Admin
+            if (forcedResult) {
+                finalItem = items.find(i => i.name.includes(forcedResult)) || items[0];
+                forcedResult = null;
+            } else {
+                // Hitung Probabilitas Normal
+                const rand = Math.random() * 100;
+                let cumulative = 0;
+                for (let item of items) {
+                    cumulative += item.chance;
+                    if (rand <= cumulative) {
+                        finalItem = item;
+                        break;
+                    }
+                }
+            }
+
+            // Tampilkan Hasil Final
+            display.innerText = finalItem.name;
+            
+            if(finalItem.name.includes("JACKPOT") || finalItem.name.includes("Gratis")) {
+                display.style.color = "#d4af37"; // Emas
+                display.style.border = "3px solid #d4af37";
+            } else if(finalItem.name.includes("Kurang Beruntung")) {
+                display.style.color = "#ff4d4d"; // Merah
+            } else {
+                display.style.color = "#0f0"; // Hijau
+            }
+            
+            document.getElementById('spinBtn').innerText = "SELESAI";
+            // Tombol tetap disabled biar gak bisa spin ulang
+        }
+
+        // --- FITUR ADMIN RAHASIA ---
+        // Ketuk judul "DHEN COFFEE" 5x cepat
+        let adminClickCount = 0;
+        function triggerAdmin() {
+            adminClickCount++;
+            if (adminClickCount === 5) {
+                const cheat = prompt("ADMIN MODE:\nKetik 'win' (Jackpot)\nKetik 'lose' (Zonk)");
+                if (cheat === 'win') { forcedResult = "JACKPOT"; alert("Set: Next Spin JACKPOT"); }
+                else if (cheat === 'lose') { forcedResult = "Kurang Beruntung"; alert("Set: Next Spin ZONK"); }
+                adminClickCount = 0;
+            }
+        }
+    </script>
+</body>
+</html>
