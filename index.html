@@ -106,26 +106,18 @@
 
     <div class="footer">Powered by Husein Kurnia | Elins Tech</div>
 
-    <script>
-        // --- PENTING: GANTI URL DI BAWAH INI DENGAN URL APPS SCRIPT KAMU ---
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwMne_pQozulNSy7no3luV5L4M8vtCIjYIb-svukX4GihYQ-EDxnqR7rQhlJCTJQojF/exec'; 
+  <script>
+        // --- PASTE URL APPS SCRIPT KAMU DISINI ---
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyjY6R1lh6ZN_dQ2tf8VfQJPn4gWoiPGMLgiQK85v753sLquxhNlyOO4bpFqeAV2-NV/exec'; 
 
-        // --- KONFIGURASI HADIAH (OPSI A: Happy Customer) ---
         const items = [
-            // BARANG MAHAL (Total 4%)
             { name: "JACKPOT: Signature Coffee Gratis!", chance: 1 }, 
             { name: "Kopi Susu Gula Aren Gratis", chance: 3 },
-
-            // BARANG SEDANG (Total 15%)
             { name: "Free Snack Cireng", chance: 5 },
             { name: "Free Extra Shot Espresso", chance: 10 },
-
-            // BARANG MURAH (Total 25%)
             { name: "Free Up-Size Cup", chance: 10 },
             { name: "Gratis Air Mineral Botol", chance: 15 },
-
-            // GIMMICK / ZONK HALUS (Total 56%)
-            { name: "Selamat! Kamu dapat Double Stempel Loyalty", chance: 15 },
+            { name: "Selamat! Dapat Double Stempel", chance: 15 },
             { name: "Voucher Request Lagu VIP", chance: 15 },
             { name: "Kata Mutiara: Tetaplah Bernafas", chance: 15 },
             { name: "Kurang Beruntung. Coba Lagi Besok!", chance: 11 } 
@@ -133,40 +125,32 @@
 
         let forcedResult = null;
 
+        // FUNGSI 1: CEK KODE DI AWAL
         async function checkCode() {
             const name = document.getElementById('inputName').value;
             const code = document.getElementById('inputCode').value;
             const btn = document.getElementById('checkBtn');
             const msg = document.getElementById('statusMsg');
 
-            // Validasi Input Kosong
             if(!name || !code) {
-                msg.innerText = "Waduh, isi Nama dan Kode dulu ya!";
-                return;
-            }
-
-            // Kalau Script URL belum diisi (masih default)
-            if(SCRIPT_URL.includes('PASTE_URL')) {
-                alert("Bro Husein, jangan lupa pasang URL Google Script dulu di kodingan index.html!");
+                msg.innerText = "Isi Nama dan Kode dulu ya!";
                 return;
             }
 
             btn.disabled = true;
-            btn.innerText = "Sedang Memeriksa...";
+            btn.innerText = "Mengecek...";
+            msg.className = "success-msg"; 
             msg.innerText = "";
-            msg.className = "success-msg"; // Ubah warna jadi hijau sementara (loading)
 
             try {
-                // Kirim data ke Google Sheets
-                const response = await fetch(`${SCRIPT_URL}?kode=${code}&nama=${name}`);
+                // Tambah parameter action=cek
+                const response = await fetch(`${SCRIPT_URL}?action=cek&kode=${code}`);
                 const data = await response.json();
 
                 if (data.status === 'success') {
-                    // Kode Benar & Belum Dipakai
                     document.getElementById('loginForm').classList.add('hidden-section');
                     document.getElementById('gameArea').classList.remove('hidden-section');
                 } else {
-                    // Kode Salah / Sudah Dipakai
                     msg.className = "error-msg";
                     msg.innerText = data.message;
                     btn.disabled = false;
@@ -174,13 +158,13 @@
                 }
             } catch (error) {
                 console.error(error);
-                msg.className = "error-msg";
-                msg.innerText = "Gagal koneksi server. Cek internetmu.";
+                msg.innerText = "Gagal koneksi. Coba lagi.";
                 btn.disabled = false;
                 btn.innerText = "CEK KODE";
             }
         }
 
+        // FUNGSI 2: ANIMASI GACHA
         function spinGacha() {
             const display = document.getElementById('resultDisplay');
             const btn = document.getElementById('spinBtn');
@@ -188,30 +172,33 @@
             btn.disabled = true;
             btn.innerText = "ROLLING...";
 
-            // Efek Animasi Acak
             let counter = 0;
             const animation = setInterval(() => {
                 const randomTemp = items[Math.floor(Math.random() * items.length)];
                 display.innerText = randomTemp.name;
                 display.style.color = "#fff";
                 counter++;
-                if (counter > 25) { // Lama putaran
+                if (counter > 25) { 
                     clearInterval(animation);
-                    finalizeResult();
+                    finalizeResult(); // Panggil hasil akhir
                 }
-            }, 80); // Kecepatan ganti teks
+            }, 80); 
         }
 
-        function finalizeResult() {
+        // FUNGSI 3: TENTUKAN HASIL & SIMPAN KE DATABASE
+        async function finalizeResult() {
             const display = document.getElementById('resultDisplay');
+            const btn = document.getElementById('spinBtn');
+            const name = document.getElementById('inputName').value; // Ambil nama lagi
+            const code = document.getElementById('inputCode').value; // Ambil kode lagi
+            
             let finalItem;
 
-            // Cek Manipulasi Admin
+            // Logika Cheat / Random
             if (forcedResult) {
                 finalItem = items.find(i => i.name.includes(forcedResult)) || items[0];
                 forcedResult = null;
             } else {
-                // Hitung Probabilitas Normal
                 const rand = Math.random() * 100;
                 let cumulative = 0;
                 for (let item of items) {
@@ -223,31 +210,43 @@
                 }
             }
 
-            // Tampilkan Hasil Final
+            // Tampilkan Hasil di Layar
             display.innerText = finalItem.name;
             
+            // Styling Warna
             if(finalItem.name.includes("JACKPOT") || finalItem.name.includes("Gratis")) {
-                display.style.color = "#d4af37"; // Emas
-                display.style.border = "3px solid #d4af37";
+                display.style.color = "#d4af37"; display.style.border = "3px solid #d4af37";
             } else if(finalItem.name.includes("Kurang Beruntung")) {
-                display.style.color = "#ff4d4d"; // Merah
+                display.style.color = "#ff4d4d";
             } else {
-                display.style.color = "#0f0"; // Hijau
+                display.style.color = "#0f0";
             }
+
+            // --- PROSES SIMPAN KE GOOGLE SHEET ---
+            btn.innerText = "Menyimpan Data...";
             
-            document.getElementById('spinBtn').innerText = "SELESAI";
-            // Tombol tetap disabled biar gak bisa spin ulang
+            try {
+                // Kirim request 'simpan' beserta hadiahnya
+                // encodeURIComponent penting biar spasi/simbol gak bikin error link
+                const finalUrl = `${SCRIPT_URL}?action=simpan&kode=${code}&nama=${encodeURIComponent(name)}&hadiah=${encodeURIComponent(finalItem.name)}`;
+                
+                await fetch(finalUrl);
+                
+                btn.innerText = "SELESAI (Data Tersimpan)";
+            } catch (error) {
+                console.error("Gagal simpan tapi user sudah lihat hasil", error);
+                btn.innerText = "SELESAI"; // Biarin aja selesai meski error koneksi dikit
+            }
         }
 
-        // --- FITUR ADMIN RAHASIA ---
-        // Ketuk judul "DHEN COFFEE" 5x cepat
+        // Admin Cheat
         let adminClickCount = 0;
         function triggerAdmin() {
             adminClickCount++;
             if (adminClickCount === 5) {
-                const cheat = prompt("ADMIN MODE:\nKetik 'win' (Jackpot)\nKetik 'lose' (Zonk)");
-                if (cheat === 'win') { forcedResult = "JACKPOT"; alert("Set: Next Spin JACKPOT"); }
-                else if (cheat === 'lose') { forcedResult = "Kurang Beruntung"; alert("Set: Next Spin ZONK"); }
+                const cheat = prompt("ADMIN MODE (win/lose):");
+                if (cheat === 'win') { forcedResult = "JACKPOT"; alert("Next: JACKPOT"); }
+                else if (cheat === 'lose') { forcedResult = "Kurang Beruntung"; alert("Next: ZONK"); }
                 adminClickCount = 0;
             }
         }
