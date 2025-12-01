@@ -2,169 +2,314 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dhen Coffee Gacha</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dhen Coffee Rewards</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+
     <style>
+        :root {
+            --primary: #d4af37; /* Emas Dhen */
+            --bg-dark: #121212;
+            --card-bg: rgba(30, 30, 30, 0.8);
+            --text-main: #ffffff;
+        }
+
         body {
-            background-color: #1a1a1a;
-            color: #fff;
-            font-family: 'Courier New', Courier, monospace;
+            background: radial-gradient(circle at top, #2a2a2a, #000000);
+            color: var(--text-main);
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
+            /* Mencegah scroll berlebih di HP */
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 380px; /* Ukuran standar HP */
+            padding: 25px;
             box-sizing: border-box;
         }
 
-        .container {
+        /* LOGO AREA */
+        .logo-area {
             text-align: center;
-            border: 2px solid #d4af37;
-            padding: 20px;
-            border-radius: 15px;
-            background: #2b2b2b;
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
-            width: 100%;
-            max-width: 400px;
+            margin-bottom: 30px;
+            animation: fadeInDown 1s ease;
         }
-
-        h1 { color: #d4af37; margin-bottom: 5px; cursor: pointer; }
-        p { font-size: 14px; color: #ccc; }
         
-        input {
-            width: 80%;
-            padding: 12px;
-            margin: 8px 0;
-            border-radius: 5px;
-            border: 1px solid #d4af37;
-            background: #000;
-            color: #fff;
-            text-align: center;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 16px;
+        .logo-img {
+            max-width: 150px; /* Sesuaikan ukuran logo */
+            height: auto;
+            drop-shadow: 0 4px 6px rgba(0,0,0,0.5);
         }
 
-        .gacha-box {
-            font-size: 22px;
-            font-weight: bold;
-            height: 100px;
+        /* KARTU UTAMA (Glass Effect) */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        h2 {
+            margin: 0 0 10px 0;
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+        }
+
+        p {
+            font-size: 0.85rem;
+            color: #aaa;
+            margin-bottom: 25px;
+        }
+
+        /* INPUT STYLING */
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        
+        label {
+            font-size: 0.75rem;
+            color: #888;
+            margin-left: 10px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #444;
+            padding: 15px;
+            border-radius: 12px;
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+            font-size: 16px; /* Mencegah zoom di iOS */
+            outline: none;
+            box-sizing: border-box;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+        }
+
+        /* BUTTON STYLING */
+        .btn-gold {
+            background: linear-gradient(135deg, #d4af37, #b8860b);
+            color: #000;
+            border: none;
+            padding: 16px;
+            width: 100%;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-gold:active {
+            transform: scale(0.96);
+            box-shadow: 0 2px 5px rgba(212, 175, 55, 0.2);
+        }
+
+        .btn-gold:disabled {
+            background: #444;
+            color: #888;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* GACHA BOX (Tampilan Hasil) */
+        .gacha-display {
+            background: #000;
+            border: 2px solid #333;
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 100px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #000;
-            border: 2px dashed #d4af37;
-            margin: 20px 0;
-            color: #fff;
-            padding: 10px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
         }
 
-        button {
-            background: #d4af37;
-            color: #000;
-            border: none;
-            padding: 15px 0;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 50px;
-            width: 90%;
-            margin-top: 10px;
-            transition: 0.3s;
+        .gacha-text {
+            font-size: 1.2rem;
+            font-weight: 800;
+            line-height: 1.4;
+            z-index: 2;
         }
-        button:hover { background: #b89628; }
-        button:disabled { background: #555; cursor: not-allowed; }
 
-        .hidden-section { display: none; }
-        .error-msg { color: #ff4d4d; font-size: 12px; margin-top: 5px; font-weight: bold; }
-        .success-msg { color: #0f0; font-size: 12px; margin-top: 5px; }
+        /* Animasi Glow */
+        .glow-effect {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle, rgba(212,175,55,0.2) 0%, rgba(0,0,0,0) 70%);
+            z-index: 1;
+        }
 
-        /* Footer Credit */
-        .footer { margin-top: 30px; font-size: 10px; color: #555; }
+        /* UTILITIES */
+        .hidden { display: none; }
+        .error-msg { color: #ff5252; font-size: 0.8rem; margin-top: 5px; font-weight: 600; }
+        .success-msg { color: #4caf50; font-size: 0.8rem; margin-top: 5px; }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 0.7rem;
+            color: #444;
+            text-align: center;
+        }
+
+        /* Keyframes */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1 onclick="triggerAdmin()">DHEN COFFEE</h1>
-        <p>Masukkan Kode Unik dari Struk</p>
-
-        <div id="loginForm">
-            <input type="text" id="inputName" placeholder="Nama Kamu">
-            <input type="text" id="inputCode" placeholder="5 Digit Kode (Contoh: A001)">
-            <p id="statusMsg" class="error-msg"></p>
-            <button id="checkBtn" onclick="checkCode()">CEK KODE</button>
+    <div class="app-container">
+        <div class="logo-area">
+            <img src="logo.png" alt="Dhen Coffee" class="logo-img" onerror="this.style.display='none'; document.getElementById('alt-title').style.display='block';">
+            <h1 id="alt-title" style="display:none; color:var(--primary); font-size: 2rem; margin:0;" onclick="triggerAdmin()">DHEN COFFEE</h1>
+            <div onclick="triggerAdmin()" style="height: 20px; width: 100px; margin: 0 auto; cursor: default;"></div> 
         </div>
 
-        <div id="gameArea" class="hidden-section">
-            <div class="gacha-box" id="resultDisplay">KLIK TOMBOL DI BAWAH</div>
-            <button id="spinBtn" onclick="spinGacha()">PUTAR KEBERUNTUNGAN</button>
-            <p style="font-size: 10px; margin-top: 10px; color: #aaa;">*Screenshot hasil ini & tunjukkan ke Barista</p>
+        <div class="card">
+            
+            <div id="loginForm">
+                <h2>WELCOME BACK</h2>
+                <p>Masukkan kode unik yang tertera di struk pembelian Anda.</p>
+                
+                <div class="form-group">
+                    <label>NAMA PELANGGAN</label>
+                    <input type="text" id="inputName" placeholder="Contoh: Budi" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label>KODE STRUK</label>
+                    <input type="text" id="inputCode" placeholder="Contoh: A8892" autocomplete="off" style="text-transform:uppercase; letter-spacing: 2px; font-weight:bold;">
+                </div>
+
+                <p id="statusMsg" class="error-msg"></p>
+                <button id="checkBtn" class="btn-gold" onclick="checkCode()">VERIFIKASI KODE</button>
+            </div>
+
+            <div id="gameArea" class="hidden">
+                <h2 style="margin-bottom: 20px;">LUCKY SPIN</h2>
+                
+                <div class="gacha-display">
+                    <div class="glow-effect"></div>
+                    <div class="gacha-text" id="resultDisplay" style="color: #fff;">READY?</div>
+                </div>
+
+                <p style="font-size: 0.7rem; margin-bottom: 10px;">Tekan tombol di bawah untuk mengacak hadiah</p>
+                <button id="spinBtn" class="btn-gold" onclick="spinGacha()">SPIN SEKARANG</button>
+                
+                <div style="margin-top: 20px; border-top: 1px solid #333; padding-top: 10px;">
+                    <p style="margin:0; font-size: 0.65rem; color: #666;">*Screenshot hasil & tunjukkan ke kasir</p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="footer">
+            &copy; 2025 Dhen Coffee Systems<br>Developed by Husein Kurnia R
         </div>
     </div>
 
-    <div class="footer">Powered by Husein Kurnia | Elins Tech</div>
-
-  <script>
-        // --- PASTE URL APPS SCRIPT KAMU DISINI ---
+    <script>
+        // --- CONFIGURATION ---
+        // JANGAN LUPA PASTE URL GOOGLE SCRIPT KAMU DISINI
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyjY6R1lh6ZN_dQ2tf8VfQJPn4gWoiPGMLgiQK85v753sLquxhNlyOO4bpFqeAV2-NV/exec'; 
 
         const items = [
-            { name: "JACKPOT: Signature Coffee Gratis!", chance: 1 }, 
-            { name: "Kopi Susu Gula Aren Gratis", chance: 3 },
+            { name: "JACKPOT: Signature Coffee!", chance: 1 }, 
+            { name: "Kopi Susu Gula Aren", chance: 3 },
             { name: "Free Snack Cireng", chance: 5 },
-            { name: "Free Extra Shot Espresso", chance: 10 },
+            { name: "Free Extra Shot", chance: 10 },
             { name: "Free Up-Size Cup", chance: 10 },
-            { name: "Gratis Air Mineral Botol", chance: 15 },
-            { name: "Selamat! Dapat Double Stempel", chance: 15 },
-            { name: "Voucher Request Lagu VIP", chance: 15 },
-            { name: "Kata Mutiara: Tetaplah Bernafas", chance: 15 },
-            { name: "Kurang Beruntung. Coba Lagi Besok!", chance: 11 } 
+            { name: "Gratis Air Mineral", chance: 15 },
+            { name: "Double Stempel Loyalty", chance: 15 },
+            { name: "Voucher Request Lagu", chance: 15 },
+            { name: "Quote: Tetap Semangat!", chance: 15 },
+            { name: "Coba Lagi Besok Ya!", chance: 11 } 
         ];
 
         let forcedResult = null;
 
-        // FUNGSI 1: CEK KODE DI AWAL
+        // --- FUNCTIONS ---
+
         async function checkCode() {
             const name = document.getElementById('inputName').value;
-            const code = document.getElementById('inputCode').value;
+            const code = document.getElementById('inputCode').value.toUpperCase(); // Auto uppercase
             const btn = document.getElementById('checkBtn');
             const msg = document.getElementById('statusMsg');
 
-            if(!name || !code) {
-                msg.innerText = "Isi Nama dan Kode dulu ya!";
-                return;
+            if(!name || !code) { 
+                msg.innerText = "Mohon lengkapi nama dan kode struk."; 
+                msg.className = "error-msg";
+                return; 
             }
 
-            btn.disabled = true;
-            btn.innerText = "Mengecek...";
-            msg.className = "success-msg"; 
+            btn.disabled = true; 
+            btn.innerHTML = "<span style='font-size:0.9rem'>MEMERIKSA...</span>"; 
             msg.innerText = "";
 
             try {
-                // Tambah parameter action=cek
-                const response = await fetch(`${SCRIPT_URL}?action=cek&kode=${code}`);
+                // Pake &v=Date.now() biar cache bener-bener tembus
+                const response = await fetch(`${SCRIPT_URL}?action=cek&kode=${code}&v=${Date.now()}`);
                 const data = await response.json();
 
                 if (data.status === 'success') {
-                    document.getElementById('loginForm').classList.add('hidden-section');
-                    document.getElementById('gameArea').classList.remove('hidden-section');
+                    // Animasi transisi
+                    document.getElementById('loginForm').style.opacity = '0';
+                    setTimeout(() => {
+                        document.getElementById('loginForm').classList.add('hidden');
+                        document.getElementById('gameArea').classList.remove('hidden');
+                        // Reset opacity gameArea biar smooth (kalau mau ditambah CSS transition)
+                    }, 300);
                 } else {
-                    msg.className = "error-msg";
+                    msg.className = "error-msg"; 
                     msg.innerText = data.message;
-                    btn.disabled = false;
-                    btn.innerText = "CEK KODE";
+                    resetBtn();
                 }
             } catch (error) {
-                console.error(error);
-                msg.innerText = "Gagal koneksi. Coba lagi.";
-                btn.disabled = false;
-                btn.innerText = "CEK KODE";
+                msg.className = "error-msg"; 
+                msg.innerText = "Gagal terhubung ke server.";
+                resetBtn();
             }
         }
 
-        // FUNGSI 2: ANIMASI GACHA
+        function resetBtn() {
+            const btn = document.getElementById('checkBtn');
+            btn.disabled = false;
+            btn.innerText = "VERIFIKASI KODE";
+        }
+
         function spinGacha() {
             const display = document.getElementById('resultDisplay');
             const btn = document.getElementById('spinBtn');
@@ -172,29 +317,33 @@
             btn.disabled = true;
             btn.innerText = "ROLLING...";
 
+            // Efek suara getar di HP (kalau support)
+            if (navigator.vibrate) navigator.vibrate(50);
+
             let counter = 0;
             const animation = setInterval(() => {
                 const randomTemp = items[Math.floor(Math.random() * items.length)];
                 display.innerText = randomTemp.name;
-                display.style.color = "#fff";
+                
+                // Ubah warna text random biar seru
+                display.style.color = counter % 2 === 0 ? "#fff" : "#d4af37";
+                
                 counter++;
-                if (counter > 25) { 
+                if (counter > 30) { 
                     clearInterval(animation);
-                    finalizeResult(); // Panggil hasil akhir
+                    finalizeResult();
                 }
-            }, 80); 
+            }, 60); // Lebih cepat dikit
         }
 
-        // FUNGSI 3: TENTUKAN HASIL & SIMPAN KE DATABASE
         async function finalizeResult() {
             const display = document.getElementById('resultDisplay');
             const btn = document.getElementById('spinBtn');
-            const name = document.getElementById('inputName').value; // Ambil nama lagi
-            const code = document.getElementById('inputCode').value; // Ambil kode lagi
+            const name = document.getElementById('inputName').value;
+            const code = document.getElementById('inputCode').value.toUpperCase();
             
             let finalItem;
 
-            // Logika Cheat / Random
             if (forcedResult) {
                 finalItem = items.find(i => i.name.includes(forcedResult)) || items[0];
                 forcedResult = null;
@@ -203,50 +352,45 @@
                 let cumulative = 0;
                 for (let item of items) {
                     cumulative += item.chance;
-                    if (rand <= cumulative) {
-                        finalItem = item;
-                        break;
-                    }
+                    if (rand <= cumulative) { finalItem = item; break; }
                 }
             }
 
-            // Tampilkan Hasil di Layar
             display.innerText = finalItem.name;
             
-            // Styling Warna
+            // Coloring Result
             if(finalItem.name.includes("JACKPOT") || finalItem.name.includes("Gratis")) {
-                display.style.color = "#d4af37"; display.style.border = "3px solid #d4af37";
-            } else if(finalItem.name.includes("Kurang Beruntung")) {
-                display.style.color = "#ff4d4d";
+                display.style.color = "#d4af37"; 
+                display.style.textShadow = "0 0 10px rgba(212,175,55,0.8)";
+                if (navigator.vibrate) navigator.vibrate([200, 100, 200]); // Getar Heboh
+            } else if(finalItem.name.includes("Coba Lagi") || finalItem.name.includes("Zonk")) {
+                display.style.color = "#ff5252";
+                display.style.textShadow = "none";
             } else {
-                display.style.color = "#0f0";
+                display.style.color = "#4caf50"; // Hijau
+                display.style.textShadow = "none";
             }
 
-            // --- PROSES SIMPAN KE GOOGLE SHEET ---
-            btn.innerText = "Menyimpan Data...";
+            btn.innerText = "MENYIMPAN...";
             
             try {
-                // Kirim request 'simpan' beserta hadiahnya
-                // encodeURIComponent penting biar spasi/simbol gak bikin error link
                 const finalUrl = `${SCRIPT_URL}?action=simpan&kode=${code}&nama=${encodeURIComponent(name)}&hadiah=${encodeURIComponent(finalItem.name)}`;
-                
                 await fetch(finalUrl);
-                
-                btn.innerText = "SELESAI (Data Tersimpan)";
+                btn.innerText = "SELESAI (DATA TERSIMPAN)";
+                btn.style.background = "#333"; // Ubah warna tombol jadi mati
             } catch (error) {
-                console.error("Gagal simpan tapi user sudah lihat hasil", error);
-                btn.innerText = "SELESAI"; // Biarin aja selesai meski error koneksi dikit
+                btn.innerText = "SELESAI";
             }
         }
 
-        // Admin Cheat
+        // ADMIN CHEAT: Klik area kosong di bawah logo 5x
         let adminClickCount = 0;
         function triggerAdmin() {
             adminClickCount++;
             if (adminClickCount === 5) {
-                const cheat = prompt("ADMIN MODE (win/lose):");
-                if (cheat === 'win') { forcedResult = "JACKPOT"; alert("Next: JACKPOT"); }
-                else if (cheat === 'lose') { forcedResult = "Kurang Beruntung"; alert("Next: ZONK"); }
+                const cheat = prompt("ADMIN OVERRIDE (win/lose):");
+                if (cheat === 'win') { forcedResult = "JACKPOT"; alert("Target Locked: JACKPOT"); }
+                else if (cheat === 'lose') { forcedResult = "Coba Lagi"; alert("Target Locked: ZONK"); }
                 adminClickCount = 0;
             }
         }
